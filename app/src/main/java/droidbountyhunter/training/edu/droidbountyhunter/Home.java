@@ -1,5 +1,6 @@
 package droidbountyhunter.training.edu.droidbountyhunter;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 
 import android.widget.TextView;
 
+import java.util.Locale;
+
 public class Home extends AppCompatActivity {
 
     /**
@@ -30,6 +33,7 @@ public class Home extends AppCompatActivity {
      * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
+    private Fragment[] mFragments;
 
     /**
      * The {@link ViewPager} that will host the section contents.
@@ -58,8 +62,8 @@ public class Home extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(Home.this, AgregarActivity.class);
+                startActivityForResult(intent, 0);
             }
         });
 
@@ -75,17 +79,15 @@ public class Home extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_agregar:
+                Intent oW = new Intent();
+                oW.setClass(this, AgregarActivity.class);
+                startActivityForResult(oW, 0);
+                break;
         }
+        return true;
 
-        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -131,13 +133,27 @@ public class Home extends AppCompatActivity {
 
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
+            mFragments = new Fragment[3];
         }
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            if(mFragments[position] == null){
+                // Si el Fragment no existe, se instancia...
+                if (position < 2){
+                    // Para los dos primeros Tabs se crea el mismo fragment
+                    // con el parámetro que indica el Tab...
+                    mFragments[position] = new ListFragment();
+                    Bundle args = new Bundle();
+                    args.putInt(ListFragment.ARG_SECTION_NUMBER, position);
+                    mFragments[position].setArguments(args);
+                }else {
+                    mFragments[position] = new AboutFragment();
+                }
+            }
+            return mFragments[position];
         }
 
         @Override
@@ -148,13 +164,14 @@ public class Home extends AppCompatActivity {
 
         @Override
         public CharSequence getPageTitle(int position) {
+            Locale locale = Locale.getDefault();
             switch (position) {
                 case 0:
-                    return "SECTION 1";
+                    return getString(R.string.title_capturados).toUpperCase(locale);
                 case 1:
-                    return "SECTION 2";
+                    return getString(R.string.title_fugitivos).toUpperCase(locale);
                 case 2:
-                    return "SECTION 3";
+                    return getString(R.string.title_about).toUpperCase(locale);
             }
             return null;
         }
