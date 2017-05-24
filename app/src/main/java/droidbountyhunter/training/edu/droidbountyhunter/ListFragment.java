@@ -18,6 +18,8 @@ import android.widget.TextView;
 public class ListFragment extends Fragment {
     public static final String ARG_SECTION_TEXT = "section_text";
     public static final String ARG_SECTION_NUMBER = "section_number";
+    private int iMode;
+    private ListView tList;
 
     public ListFragment() {
     }
@@ -31,34 +33,41 @@ public class ListFragment extends Fragment {
         View iView = inflater.inflate(R.layout.list_fragment, container,
                 false);
         Bundle aArgs = this.getArguments();
-        final int iMode = aArgs.getInt(ListFragment.ARG_SECTION_NUMBER);
+        iMode = aArgs.getInt(ListFragment.ARG_SECTION_NUMBER);
 
-        ListView tlList = ((ListView) iView.findViewById(R.id.bhList));
-        String[] aData = new String[6];
-        // Datos en HardCode...
-        aData[0] = "Armando Olmos";
-        aData[1] = "Guillermo Ortega";
-        aData[2] = "Carlos Martinez";
-        aData[3] = "Moises Rivas";
-        aData[4] = "Adrian Rubiera";
-        aData[5] = "Victor Medina";
+        tList = ((ListView) iView.findViewById(R.id.bhList));
 
-        ArrayAdapter<String> aList = new ArrayAdapter<String>(
-                getActivity(), R.layout.row_list, aData);
-        tlList.setAdapter(aList);
+        UpdateList();
+
         // Se genera el Listener para el detalle de cada elemento...
-        tlList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        tList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> aList, View vItem,
                                     int iPosition, long l) {
                 Intent oW = new Intent();
+                String[][] aDat = (String[][])aList.getTag();
                 oW.setClass(getActivity(), DetalleActivity.class);
                 oW.putExtra("title", ((TextView) vItem).getText());
                 oW.putExtra("mode", iMode);
+                oW.putExtra("id", aDat[iPosition][0]);
                 startActivity(oW);
             }
         });
 
         return iView;
+    }
+
+    public void UpdateList(){
+        String[][] aRef = Home.oDB.ObtenerFugitivos(iMode == 1);
+        if (aRef != null){
+            String[] aData = new String[aRef.length];
+            for (int iCnt = 0 ; iCnt < aRef.length ; iCnt++){
+                aData[iCnt] = aRef[iCnt][1];
+            }
+            ArrayAdapter<String> aList = new ArrayAdapter<String>(
+                    getActivity(), R.layout.row_list, aData);
+            tList.setTag(aRef);
+            tList.setAdapter(aList);
+        }
     }
 
 }

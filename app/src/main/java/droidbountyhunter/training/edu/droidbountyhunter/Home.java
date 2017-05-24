@@ -22,6 +22,8 @@ import android.widget.TextView;
 
 import java.util.Locale;
 
+import droidbountyhunter.training.edu.data.DBProvider;
+
 public class Home extends AppCompatActivity {
 
     /**
@@ -34,11 +36,16 @@ public class Home extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private Fragment[] mFragments;
+    public static DBProvider oDB;
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    public Home(){
+        oDB = new DBProvider(this);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,7 @@ public class Home extends AppCompatActivity {
             }
         });
 
+
     }
 
 
@@ -88,6 +96,17 @@ public class Home extends AppCompatActivity {
         }
         return true;
 
+    }
+
+    public void UpdateLists(int index){
+        mViewPager.setAdapter(mSectionsPagerAdapter);
+        mViewPager.setCurrentItem(index);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UpdateLists(requestCode);
     }
 
     /**
